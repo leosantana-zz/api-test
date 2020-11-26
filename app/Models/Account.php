@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Account extends Model
 {
     public $incrementing = false;
@@ -12,8 +13,30 @@ class Account extends Model
         'id', 'balance'
     ];
 
-    public function getBalance()
+    static function getBalance($id)
     {
-        return $this->balance;
+        $Account = Account::where('id', $id)->firstOrFail();
+        return intval($Account->balance);
+    }
+
+    static function withdraw($id, $amount)
+    {
+        $Account = Account::where('id', $id)->firstOrFail();
+        $Account->balance -= $amount;
+        return $Account->save();
+    }
+
+    static function deposit($id, $amount)
+    {
+        $Account = Account::firstOrNew(['id' => $id]);
+        $Account->id = $id;
+        $Account->balance += $amount;
+        return $Account->save();
+    }
+
+    static function transfer($originId, $destinationId, $amount)
+    {
+        Account::withdraw($originId, $amount);
+        Account::deposit($destinationId, $amount);
     }
 }
