@@ -57,20 +57,20 @@ class AccountController extends Controller
     private function _withdraw($origin, $amount){
         $Account = Account::where('id', $origin)->firstOrFail();
         $Account->balance -= $amount;
-        $Account->save();
-        return $Account;
+        if($Account->save())
+            return $Account;
     }
 
     private function _deposit($destination, $amount){
         $Account = Account::firstOrNew(['id' => $destination]);
         $Account->id = $destination;
         $Account->balance += $amount;
-        $Account->save();
-        return $Account;
+        if($Account->save())
+            return $Account;
     }
 
     private function _transfer($origin, $destination, $amount){
-        $AccountOrigin = $this->_withdraw($origin,$amount);
+        $AccountOrigin      = $this->_withdraw($origin,$amount);
         $AccountDestination = $this->_deposit($destination,$amount);
         return [$AccountOrigin, $AccountDestination];
     }
